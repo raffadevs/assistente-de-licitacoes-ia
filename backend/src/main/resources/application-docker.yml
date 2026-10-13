@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/${POSTGRES_DB:licitacoes}
+    username: ${POSTGRES_USER:licitacoes}
+    password: ${POSTGRES_PASSWORD:change-me}
+  ai:
+    ollama:
+      base-url: http://ollama:11434
+
+app:
+  uploads:
+    diretorio: /data/uploads

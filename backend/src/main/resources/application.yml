@@ -1,0 +1,68 @@
+spring:
+  application:
+    name: assistente-de-licitacoes-ia
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: jdbc:postgresql://localhost:5432/licitacoes
+    username: licitacoes
+    password: change-me
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+  ai:
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      init:
+        pull-model-strategy: ${OLLAMA_PULL_STRATEGY:when_missing}
+      chat:
+        model: ${OLLAMA_CHAT_MODEL:llama3.2:1b}
+      embedding:
+        model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
+    vectorstore:
+      pgvector:
+        # O schema da tabela do vector store é gerenciado pelo próprio
+        # starter (initialize-schema), não pelo Flyway: seu formato é
+        # acoplado à versão do Spring AI, não ao nosso modelo de domínio —
+        # deixar o starter criar evita divergência entre a DDL copiada à mão
+        # e o que a biblioteca realmente espera.
+        initialize-schema: true
+        table-name: trecho
+        dimensions: ${EMBEDDING_DIMENSOES:768}
+        index-type: hnsw
+        distance-type: cosine_distance
+
+server:
+  port: ${SERVER_PORT:8080}
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+  uploads:
+    diretorio: ${UPLOADS_DIR:./uploads}
+  ingestao:
+    tamanho-trecho: 1200
+    sobreposicao-trecho: 150
+    caracteres-minimos-por-pagina: 20
+  busca:
+    limite-trechos: 6
+    similaridade-minima: 0.55
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
